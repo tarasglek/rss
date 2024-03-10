@@ -1,19 +1,21 @@
 services:
   miniflux:
     image: docker.io/miniflux/miniflux:latest
+    restart: unless-stopped
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      BASE_URL: https://miniflux.glek.net
       RUN_MIGRATIONS: ${RUN_MIGRATIONS}
       CREATE_ADMIN: ${CREATE_ADMIN}
       ADMIN_USERNAME: ${ADMIN_USERNAME}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     command: miniflux -debug
-    restart: unless-stopped
     networks:
       - mynetwork
 
   cloudflared-tunnel:
     image: cloudflare/cloudflared:latest
+    restart: unless-stopped
     user: "0"
     working_dir: /cloudflared
     volumes:
