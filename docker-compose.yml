@@ -11,7 +11,23 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     command: miniflux -debug
     networks:
-      - mynetwork
+      - miniflux
+
+  minifluxdb:
+    image: paradedb/paradedb:latest
+    container_name: minifluxdb
+    environment:
+      POSTGRESQL_USERNAME: miniflux
+      POSTGRESQL_PASSWORD: miniflux
+      POSTGRESQL_DATABASE: miniflux
+      POSTGRESQL_POSTGRES_PASSWORD: miniflux
+    volumes:
+      - minifluxdb_data:/bitnami/postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - miniflux
+    restart: always
 
   cloudflared-tunnel:
     image: cloudflare/cloudflared:latest
@@ -22,8 +38,17 @@ services:
       - ./dot_cloudflared:/cloudflared
     command: tunnel --config /cloudflared/tunnel-config.yaml run
     networks:
-      - mynetwork
+      - miniflux
 
+volumes:
+  minifluxdb_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /db/miniflux
+      o: bind
+      
 networks:
-  mynetwork:
+  miniflux:
     driver: bridge
+    name: miniflux
